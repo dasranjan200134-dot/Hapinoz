@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 150" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&amp;display=swap');
+      .hapinoz-text {
+        font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+        font-weight: 900;
+        font-size: 88px;
+        letter-spacing: -1.5px;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(10, 6)">
+    <!-- Wordmark with dotless i for seamless kerning -->
+    <text
+      x="8"
+      y="92"
+      class="hapinoz-text"
+      fill="#202434"
+    >
+      Hap&#305;noz
+    </text>
+
+    <!-- Two Vibrant Green Sprout Leaves above the 'i' -->
+    <g transform="translate(182, 38)">
+      <!-- Left Leaf -->
+      <path
+        d="M 0,0 C -6,-3 -18,-5 -21,-17 C -16,-22 -5,-19 0,-8 Z"
+        fill="#22c55e"
+      />
+      <!-- Right Leaf -->
+      <path
+        d="M 0,0 C 6,-3 18,-5 21,-17 C 16,-22 5,-19 0,-8 Z"
+        fill="#16a34a"
+      />
+    </g>
+
+    <!-- Radiant Orange Smile Swoop with Dimple Terminals under 'apino' -->
+    <g>
+      <circle cx="86" cy="106" r="6.5" fill="#ff6a00" />
+      <path
+        d="M 86,106 C 134,142 232,142 280,106"
+        fill="none"
+        stroke="#ff6a00"
+        stroke-width="9"
+        stroke-linecap="round"
+      />
+      <circle cx="280" cy="106" r="6.5" fill="#ff6a00" />
+    </g>
+  </g>
+</svg>

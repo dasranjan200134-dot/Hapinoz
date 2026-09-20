@@ -1,0 +1,6 @@
+{
+  "name": "HAPINOZ - E-Commerce Platform",
+  "description": "Artisanal e-commerce storefront for HAPINOZ offering 100% pure Indian spice powders, authentic single-origin masalas, and kitchen packs with Razorpay UPI & COD.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
