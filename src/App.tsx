@@ -48,7 +48,11 @@ export default function App() {
   const [copiedCoupon, setCopiedCoupon] = useState(false);
 
   const handleCopyCoupon = (code: string) => {
-    navigator.clipboard.writeText(code);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).catch(() => {});
+      }
+    } catch {}
     setCopiedCoupon(true);
     setTimeout(() => setCopiedCoupon(false), 2000);
   };
@@ -65,11 +69,20 @@ export default function App() {
         <AdminDashboard
           onViewInvoice={(order) => setSelectedInvoiceOrder(order)}
           onExitAdmin={() => setCurrentView('home')}
+          onViewProductOnLiveStore={(product) => {
+            setSelectedProduct(product);
+            setCurrentView('spice_powders');
+          }}
         />
         {selectedInvoiceOrder && (
           <InvoiceModal
             order={selectedInvoiceOrder}
             onClose={() => setSelectedInvoiceOrder(null)}
+            onBackToHome={() => {
+              setSelectedInvoiceOrder(null);
+              setCurrentView('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
       </>
@@ -512,6 +525,11 @@ export default function App() {
       <InvoiceModal
         order={selectedInvoiceOrder}
         onClose={() => setSelectedInvoiceOrder(null)}
+        onBackToHome={() => {
+          setSelectedInvoiceOrder(null);
+          setCurrentView('home');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       {/* Auth Modal */}

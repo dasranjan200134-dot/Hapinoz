@@ -4,6 +4,8 @@
   :root {
     --font-sans: 'Outfit', 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-serif: 'Playfair Display', Georgia, Cambria, 'Times New Roman', serif;
+    --font-admin: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono-admin: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   html {
@@ -25,6 +27,17 @@
   .font-serif {
     font-family: var(--font-serif);
     letter-spacing: -0.015em;
+  }
+
+  .font-admin {
+    font-family: var(--font-admin);
+    letter-spacing: -0.018em;
+  }
+
+  .font-mono-admin {
+    font-family: var(--font-mono-admin);
+    font-feature-settings: 'tnum' on, 'zero' on;
+    letter-spacing: -0.02em;
   }
 }
 

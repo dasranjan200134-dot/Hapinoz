@@ -1,0 +1,32 @@
+[
+  {
+    "order_number": "HPZ-VERIFY-1001",
+    "customer_name": "Ranjan Das",
+    "customer_email": "dasranjan200134@gmail.com",
+    "customer_phone": "+91 98765 43210",
+    "items": [
+      {
+        "title": "Artisanal Dum Biryani Masala",
+        "price": 159,
+        "quantity": 1,
+        "total": 159
+      }
+    ],
+    "subtotal": 159,
+    "discount": 0,
+    "shipping_fee": 49,
+    "tax_amount": 7.95,
+    "total": 215.95,
+    "status": "processing",
+    "payment_status": "paid",
+    "payment_method": "Cash on Delivery (COD)",
+    "shipping_address": {
+      "full_name": "Ranjan Das",
+      "address_line1": "Flat 201, Green Park",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "postal_code": "560001",
+      "country": "India"
+    }
+  }
+]

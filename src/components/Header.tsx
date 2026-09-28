@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShoppingBag,
   Search,
   User as UserIcon,
   ChevronDown,
+  ChevronRight,
   LogOut,
   Sparkles,
   LayoutDashboard,
@@ -11,6 +12,11 @@ import {
   PhoneCall,
   Truck,
   ShieldCheck,
+  Menu,
+  Home,
+  Flame,
+  Info,
+  Layers,
 } from 'lucide-react';
 import { useStore } from '../lib/store';
 import { HapinozLogo } from './HapinozLogo';
@@ -42,6 +48,18 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { cart, currentUser, logout, products } = useStore();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile dropdown when window resizes to desktop size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -383,8 +401,9 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Shopping Cart Trigger */}
             <button
               onClick={onOpenCart}
-              className="relative px-3.5 py-2 rounded-xl bg-[#1E2433] hover:bg-[#161B26] text-white transition-all shadow-xs flex items-center gap-2.5 cursor-pointer group"
+              className="relative px-3 sm:px-3.5 py-2 rounded-xl bg-[#1E2433] hover:bg-[#161B26] text-white transition-all shadow-xs flex items-center gap-2 cursor-pointer group"
               title="View Cart"
+              aria-label="Shopping Cart"
             >
               <div className="relative">
                 <ShoppingBag className="w-4 h-4 text-[#FF6A00] group-hover:scale-110 transition-transform" />
@@ -401,113 +420,288 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
             </button>
-          </div>
-        </div>
 
-        {/* Mobile Navigation Strip (Home, Spice Powders, Our Craft, About, Contact) */}
-        <div className="lg:hidden flex items-center justify-between gap-1 pb-3 overflow-x-auto no-scrollbar text-xs">
-          <div className="flex items-center gap-1">
+            {/* Mobile Menu Dropdown Toggle Button (Mobile-like devices) */}
             <button
-              onClick={() => {
-                if (isAdminView) onToggleAdminView();
-                onNavigate('home');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                currentView === 'home'
-                  ? 'bg-[#22C55E] text-white font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:text-[#15803D]'
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`lg:hidden flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer ${
+                mobileMenuOpen
+                  ? 'bg-[#EAF8F0] text-[#15803D] border-[#22C55E]/60 ring-2 ring-[#22C55E]/30'
+                  : 'bg-slate-100/90 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs'
               }`}
+              aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+              aria-expanded={mobileMenuOpen}
             >
-              Home
-            </button>
-
-            <button
-              onClick={() => {
-                if (isAdminView) onToggleAdminView();
-                onNavigate('spice_powders');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
-                currentView === 'spice_powders'
-                  ? 'bg-[#22C55E] text-white font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:text-[#15803D]'
-              }`}
-            >
-              <span>Spice Powders</span>
-              <span className="text-[10px] px-1 bg-black/20 text-white rounded-full font-mono">{activeProductsCount}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                if (isAdminView) onToggleAdminView();
-                onNavigate('craft');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                currentView === 'craft'
-                  ? 'bg-[#22C55E] text-white font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:text-[#15803D]'
-              }`}
-            >
-              Our Craft
-            </button>
-
-            <button
-              onClick={() => {
-                if (isAdminView) onToggleAdminView();
-                onNavigate('about');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                currentView === 'about'
-                  ? 'bg-[#22C55E] text-white font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:text-[#15803D]'
-              }`}
-            >
-              About
-            </button>
-
-            <button
-              onClick={() => {
-                if (isAdminView) onToggleAdminView();
-                onNavigate('contact');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                currentView === 'contact'
-                  ? 'bg-[#22C55E] text-white font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:text-[#15803D]'
-              }`}
-            >
-              Contact
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5 text-[#15803D]" />
+              ) : (
+                <Menu className="w-5 h-5 text-slate-800" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="md:hidden pb-3">
-          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-[#FF6A00] focus-within:bg-white transition-all shadow-2xs">
-            <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                onSearchChange(e.target.value);
-                if (currentView !== 'spice_powders' && e.target.value.trim().length > 0) {
-                  onNavigate('spice_powders');
-                }
-              }}
-              placeholder="Search turmeric, mirch, jeera..."
-              className="w-full text-xs text-slate-800 placeholder:text-slate-400 bg-transparent focus:outline-hidden"
-            />
-            {searchQuery && (
+        {/* Mobile Dropdown Navigation Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-slate-200 bg-white shadow-2xl rounded-b-3xl overflow-hidden pb-4 pt-3 px-2 sm:px-4 animate-in slide-in-from-top-2 duration-200">
+            {/* Mobile Search Input in Dropdown */}
+            <div className="mb-3 px-1">
+              <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 focus-within:border-[#22C55E] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#22C55E]/20 transition-all shadow-2xs">
+                <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    onSearchChange(e.target.value);
+                    if (currentView !== 'spice_powders' && e.target.value.trim().length > 0) {
+                      onNavigate('spice_powders');
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setMobileMenuOpen(false);
+                      if (currentView !== 'spice_powders') {
+                        onNavigate('spice_powders');
+                      }
+                    }
+                  }}
+                  placeholder="Search pure turmeric, mirch, pepper..."
+                  className="w-full text-xs text-slate-800 placeholder:text-slate-400 bg-transparent focus:outline-hidden"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => onSearchChange('')}
+                    className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Main Navigation Links */}
+            <div className="space-y-1 px-1">
               <button
-                type="button"
-                onClick={() => onSearchChange('')}
-                className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                onClick={() => {
+                  if (isAdminView) onToggleAdminView();
+                  onNavigate('home');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  currentView === 'home'
+                    ? 'bg-[#22C55E] text-white font-bold shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-[#15803D]'
+                }`}
               >
-                <X className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-3">
+                  <Home className={`w-4 h-4 ${currentView === 'home' ? 'text-white' : 'text-[#22C55E]'}`} />
+                  <span>Home</span>
+                </div>
+                <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${currentView === 'home' ? 'text-white' : 'text-slate-400'}`} />
               </button>
-            )}
+
+              <button
+                onClick={() => {
+                  if (isAdminView) onToggleAdminView();
+                  onNavigate('spice_powders');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  currentView === 'spice_powders'
+                    ? 'bg-[#22C55E] text-white font-bold shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-[#15803D]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Flame className={`w-4 h-4 ${currentView === 'spice_powders' ? 'text-white' : 'text-[#FF6A00]'}`} />
+                  <span>Spice Powders</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                    currentView === 'spice_powders' ? 'bg-black/25 text-white' : 'bg-[#EAF8F0] text-[#15803D] border border-[#22C55E]/40'
+                  }`}>
+                    {activeProductsCount} Items
+                  </span>
+                  <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${currentView === 'spice_powders' ? 'text-white' : 'text-slate-400'}`} />
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  if (isAdminView) onToggleAdminView();
+                  onNavigate('craft');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  currentView === 'craft'
+                    ? 'bg-[#22C55E] text-white font-bold shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-[#15803D]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Layers className={`w-4 h-4 ${currentView === 'craft' ? 'text-white' : 'text-[#15803D]'}`} />
+                  <span>Our Craft</span>
+                </div>
+                <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${currentView === 'craft' ? 'text-white' : 'text-slate-400'}`} />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (isAdminView) onToggleAdminView();
+                  onNavigate('about');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  currentView === 'about'
+                    ? 'bg-[#22C55E] text-white font-bold shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-[#15803D]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Info className={`w-4 h-4 ${currentView === 'about' ? 'text-white' : 'text-slate-500'}`} />
+                  <span>About Hapinoz</span>
+                </div>
+                <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${currentView === 'about' ? 'text-white' : 'text-slate-400'}`} />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (isAdminView) onToggleAdminView();
+                  onNavigate('contact');
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  currentView === 'contact'
+                    ? 'bg-[#22C55E] text-white font-bold shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-[#15803D]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <PhoneCall className={`w-4 h-4 ${currentView === 'contact' ? 'text-white' : 'text-[#FF6A00]'}`} />
+                  <span>Contact & Support</span>
+                </div>
+                <ChevronRight className={`w-3.5 h-3.5 opacity-60 ${currentView === 'contact' ? 'text-white' : 'text-slate-400'}`} />
+              </button>
+            </div>
+
+            {/* Quick Actions / Track Order & Customer Support */}
+            <div className="mt-3 pt-3 border-t border-slate-100 px-1 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (currentUser) {
+                      onOpenDashboard('orders');
+                    } else {
+                      onOpenAuth();
+                    }
+                  }}
+                  className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-[#EAF8F0] text-slate-700 hover:text-[#15803D] border border-slate-200 text-xs font-medium transition-colors cursor-pointer"
+                >
+                  <Truck className="w-3.5 h-3.5 text-[#22C55E]" />
+                  <span>Track Order</span>
+                </button>
+
+                <a
+                  href="tel:+919876543210"
+                  className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-[#FF6A00] border border-slate-200 text-xs font-medium transition-colors"
+                >
+                  <PhoneCall className="w-3.5 h-3.5 text-[#FF6A00]" />
+                  <span>Call Care</span>
+                </a>
+              </div>
+
+              {/* User Account / Sign In in Mobile Dropdown */}
+              {!currentUser ? (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth();
+                  }}
+                  className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#1E2433] hover:bg-[#161B26] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  <UserIcon className="w-4 h-4 text-[#22C55E]" />
+                  <span>Sign In / Create Account</span>
+                </button>
+              ) : (
+                <div className="mt-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-[#22C55E] text-white flex items-center justify-center font-bold text-[10px]">
+                        {currentUser.role === 'admin' ? 'A' : currentUser.full_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="text-left">
+                        <div className="text-xs font-bold text-slate-900 truncate max-w-[140px]">{currentUser.full_name}</div>
+                        <div className="text-[10px] text-slate-500">{currentUser.role === 'admin' ? 'Administrator' : 'Customer Account'}</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="text-[11px] text-rose-600 hover:text-rose-700 font-semibold p-1 cursor-pointer flex items-center gap-1"
+                    >
+                      <LogOut className="w-3 h-3" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5 pt-1">
+                    {currentUser.role === 'admin' ? (
+                      <button
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          onOpenAdmin();
+                        }}
+                        className="py-1.5 px-2 bg-[#EAF8F0] text-[#15803D] rounded-lg text-[11px] font-bold text-center border border-[#22C55E]/30 cursor-pointer"
+                      >
+                        Admin Panel
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          onOpenDashboard('orders');
+                        }}
+                        className="py-1.5 px-2 bg-white text-slate-700 rounded-lg text-[11px] font-medium text-center border border-slate-200 cursor-pointer"
+                      >
+                        My Orders
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        onOpenDashboard('profile');
+                      }}
+                      className="py-1.5 px-2 bg-white text-slate-700 rounded-lg text-[11px] font-medium text-center border border-slate-200 cursor-pointer"
+                    >
+                      My Profile
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Lab tested badge in dropdown */}
+              <div className="flex items-center justify-center gap-2 pt-2 text-[10px] text-slate-400">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#22C55E]" />
+                <span>100% Lab Tested & Pure Spices Guarantee</span>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Backdrop overlay for mobile dropdown */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 top-[110px] bg-slate-900/40 backdrop-blur-2xs z-30 lg:hidden animate-in fade-in"
+          aria-hidden="true"
+        />
+      )}
     </header>
   );
 };

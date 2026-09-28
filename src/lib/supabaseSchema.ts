@@ -1,8 +1,41 @@
 export const SUPABASE_SQL_SCHEMA = `-- =========================================================================
 -- HAPINOZ E-COMMERCE PLATFORM: COMPLETE PRODUCTION SUPABASE SQL SCHEMA
 -- With Row Level Security (RLS), Relations, Indexes, and Functions
+-- Compact 15-20 Character IDs (e.g. usr_9k4m2p8x1v7q, prd_3f8a1c9e2b4d)
 -- Compatible with Supabase PostgreSQL 15+
 -- =========================================================================
+
+-- =========================================================================
+-- MIGRATION SCRIPT: CONVERT EXISTING TABLE IDs TO VARCHAR(20) / TEXT
+-- (Run this in Supabase SQL Editor if your tables were created with UUID)
+-- =========================================================================
+DO $$
+BEGIN
+    -- Drop foreign keys temporarily if needed
+    ALTER TABLE IF EXISTS public.order_items DROP CONSTRAINT IF EXISTS order_items_order_id_fkey;
+    ALTER TABLE IF EXISTS public.order_items DROP CONSTRAINT IF EXISTS order_items_product_id_fkey;
+    ALTER TABLE IF EXISTS public.transactions DROP CONSTRAINT IF EXISTS transactions_order_id_fkey;
+    ALTER TABLE IF EXISTS public.addresses DROP CONSTRAINT IF EXISTS addresses_user_id_fkey;
+    ALTER TABLE IF EXISTS public.product_reviews DROP CONSTRAINT IF EXISTS product_reviews_product_id_fkey;
+    ALTER TABLE IF EXISTS public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+
+    -- Alter column types to VARCHAR(20)
+    ALTER TABLE IF EXISTS public.profiles ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.products ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.orders ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.order_items ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.order_items ALTER COLUMN order_id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.order_items ALTER COLUMN product_id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.transactions ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.transactions ALTER COLUMN order_id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.coupons ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.shipping_rules ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.tax_rules ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.addresses ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.addresses ALTER COLUMN user_id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.product_reviews ALTER COLUMN id TYPE VARCHAR(20);
+    ALTER TABLE IF EXISTS public.product_reviews ALTER COLUMN product_id TYPE VARCHAR(20);
+END $$;
 
 -- 1. Enable Required Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -15,9 +48,9 @@ CREATE TYPE coupon_type AS ENUM ('percentage', 'fixed');
 CREATE TYPE order_status_type AS ENUM ('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
 CREATE TYPE payment_status_type AS ENUM ('pending', 'paid', 'failed', 'refunded');
 
--- 3. Profiles / User Directory Table (Extends Supabase auth.users)
+-- 3. Profiles / User Directory Table (Compact 15-20 char ID)
 CREATE TABLE public.profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id VARCHAR(20) PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
     full_name TEXT NOT NULL,
     role user_role DEFAULT 'customer' NOT NULL,
@@ -29,8 +62,8 @@ CREATE TABLE public.profiles (
 
 -- 4. Customer Saved Addresses
 CREATE TABLE public.addresses (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    id VARCHAR(20) PRIMARY KEY,
+    user_id VARCHAR(20) REFERENCES public.profiles(id) ON DELETE CASCADE,
     full_name TEXT NOT NULL,
     phone TEXT NOT NULL,
     address_line1 TEXT NOT NULL,
@@ -46,7 +79,7 @@ CREATE TABLE public.addresses (
 
 -- 5. Product Categories
 CREATE TABLE public.categories (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id VARCHAR(20) PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE,
     description TEXT,
@@ -55,7 +88,7 @@ CREATE TABLE public.categories (
 
 -- 6. Products Table
 CREATE TABLE public.products (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id VARCHAR(20) PRIMARY KEY,
     title TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     sku TEXT NOT NULL UNIQUE,
@@ -64,6 +97,9 @@ CREATE TABLE public.products (
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
     regular_price NUMERIC(10, 2) CHECK (regular_price >= 0),
     sale_price NUMERIC(10, 2) CHECK (sale_price >= 0),
+    size TEXT DEFAULT '100g',
+    available_sizes TEXT[] DEFAULT '{"100g", "250g", "500g"}',
+    size_pricing JSONB DEFAULT '{"100g": {"price": 149, "regular_price": 199}, "250g": {"price": 299, "regular_price": 399}, "500g": {"price": 549, "regular_price": 749}}',
     stock_quantity INTEGER NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0),
     stock_status stock_status_type DEFAULT 'in_stock' NOT NULL,
     category TEXT NOT NULL,
@@ -79,7 +115,7 @@ CREATE TABLE public.products (
 
 -- 7. Coupons Table
 CREATE TABLE public.coupons (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id VARCHAR(20) PRIMARY KEY,
     code TEXT NOT NULL UNIQUE,
     discount_type coupon_type NOT NULL,
     amount NUMERIC(10, 2) NOT NULL CHECK (amount > 0),
@@ -94,7 +130,7 @@ CREATE TABLE public.coupons (
 
 -- 8. Shipping Rules Table
 CREATE TABLE public.shipping_rules (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id VARCHAR(20) PRIMARY KEY,
     title TEXT NOT NULL,
     cost NUMERIC(10, 2) NOT NULL DEFAULT 0 CHECK (cost >= 0),
     free_threshold NUMERIC(10, 2) NOT NULL DEFAULT 999 CHECK (free_threshold >= 0),
@@ -105,7 +141,7 @@ CREATE TABLE public.shipping_rules (
 
 -- 9. Tax Rules Table
 CREATE TABLE public.tax_rules (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id VARCHAR(20) PRIMARY KEY,
     name TEXT NOT NULL,
     rate_percent NUMERIC(5, 2) NOT NULL CHECK (rate_percent >= 0),
     is_compound BOOLEAN DEFAULT false NOT NULL,
@@ -115,9 +151,9 @@ CREATE TABLE public.tax_rules (
 
 -- 10. Orders Table
 CREATE TABLE public.orders (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id VARCHAR(20) PRIMARY KEY,
     order_number TEXT NOT NULL UNIQUE,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    user_id VARCHAR(20) REFERENCES public.profiles(id) ON DELETE SET NULL,
     customer_name TEXT NOT NULL,
     customer_email TEXT NOT NULL,
     customer_phone TEXT NOT NULL,
@@ -143,9 +179,9 @@ CREATE TABLE public.orders (
 
 -- 11. Order Items Table
 CREATE TABLE public.order_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
-    product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
+    id VARCHAR(20) PRIMARY KEY,
+    order_id VARCHAR(20) REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
+    product_id VARCHAR(20) REFERENCES public.products(id) ON DELETE SET NULL,
     title TEXT NOT NULL,
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
     quantity INTEGER NOT NULL CHECK (quantity > 0),
@@ -156,8 +192,8 @@ CREATE TABLE public.order_items (
 
 -- 12. Razorpay Transactions Table
 CREATE TABLE public.transactions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
+    id VARCHAR(20) PRIMARY KEY,
+    order_id VARCHAR(20) REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
     order_number TEXT NOT NULL,
     razorpay_payment_id TEXT NOT NULL,
     razorpay_order_id TEXT NOT NULL,
@@ -170,9 +206,9 @@ CREATE TABLE public.transactions (
 
 -- 13. Customer Product Reviews
 CREATE TABLE public.product_reviews (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_id UUID REFERENCES public.products(id) ON DELETE CASCADE NOT NULL,
-    user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    id VARCHAR(20) PRIMARY KEY,
+    product_id VARCHAR(20) REFERENCES public.products(id) ON DELETE CASCADE NOT NULL,
+    user_id VARCHAR(20) REFERENCES public.profiles(id) ON DELETE SET NULL,
     user_name TEXT NOT NULL,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT NOT NULL,
@@ -223,11 +259,14 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE POLICY "Public profiles are viewable by everyone" 
 ON public.profiles FOR SELECT USING (true);
 
-CREATE POLICY "Users can update their own profile" 
-ON public.profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Allow profile insert" 
+ON public.profiles FOR INSERT WITH CHECK (true);
 
-CREATE POLICY "Admins can manage all profiles" 
-ON public.profiles FOR ALL USING (public.is_admin());
+CREATE POLICY "Allow profile update" 
+ON public.profiles FOR UPDATE USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow profile delete" 
+ON public.profiles FOR DELETE USING (public.is_admin());
 
 -- Products Policies
 CREATE POLICY "Anyone can view active products" 
@@ -284,25 +323,69 @@ CREATE POLICY "Anyone can read reviews" ON public.product_reviews FOR SELECT USI
 CREATE POLICY "Authenticated users can post reviews" ON public.product_reviews FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 
 -- =========================================================================
+-- STORAGE BUCKETS (Product Photography & Assets)
+-- =========================================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Storage Policies for product-images
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Public Access for Product Images'
+    ) THEN
+        CREATE POLICY "Public Access for Product Images"
+        ON storage.objects FOR SELECT
+        USING (bucket_id = 'product-images');
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Allow Uploads to Product Images'
+    ) THEN
+        CREATE POLICY "Allow Uploads to Product Images"
+        ON storage.objects FOR INSERT
+        WITH CHECK (bucket_id = 'product-images');
+    END IF;
+END $$;
+
+-- =========================================================================
 -- AUTOMATED TRIGGERS
 -- =========================================================================
 
 -- Trigger: Automatically insert profile when a new user signs up in Supabase Auth
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+SECURITY DEFINER
+SET search_path = public, auth, pg_temp
+LANGUAGE plpgsql
+AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email, full_name, role)
+    INSERT INTO public.profiles (id, email, full_name, role, phone, created_at, updated_at)
     VALUES (
-        new.id,
-        new.email,
-        COALESCE(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
-        COALESCE((new.raw_user_meta_data->>'role')::user_role, 'customer')
-    );
-    RETURN new;
+        NEW.id,
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
+        COALESCE((NEW.raw_user_meta_data->>'role')::public.user_role, 'customer'::public.user_role),
+        NEW.raw_user_meta_data->>'phone',
+        NOW(),
+        NOW()
+    )
+    ON CONFLICT (id) DO UPDATE SET
+        full_name = EXCLUDED.full_name,
+        role = EXCLUDED.role,
+        phone = COALESCE(EXCLUDED.phone, public.profiles.phone),
+        updated_at = NOW();
+    RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+    RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 

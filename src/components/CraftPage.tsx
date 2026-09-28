@@ -12,6 +12,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { HapinozLogo } from './HapinozLogo';
+import { POUCH_IMAGES } from '../lib/productImages';
 
 interface CraftPageProps {
   onGoToShop: () => void;
@@ -25,7 +26,7 @@ export const CraftPage: React.FC<CraftPageProps> = ({ onGoToShop, onSelectCatego
       spice: 'Organic Lakadong Turmeric Powder',
       curcumin: '7.5% - 8.2% Active Curcumin',
       desc: 'Pulverized from high-altitude organic rhizomes. Globally renowned for the world’s highest natural curcumin potency & vibrant golden hue.',
-      image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80',
+      image: POUCH_IMAGES.turmeric,
       category: 'Pure Spice Powders',
     },
     {
@@ -33,7 +34,7 @@ export const CraftPage: React.FC<CraftPageProps> = ({ onGoToShop, onSelectCatego
       spice: 'Pure Tellicherry Black Pepper Powder',
       curcumin: 'High Piperine & Essential Oils',
       desc: 'Milled from bold TGSEB Tellicherry berries. Cold-processed fresh to release crisp pine and citrus warmth into curries.',
-      image: 'https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=600&q=80',
+      image: POUCH_IMAGES.garamMasala,
       category: 'Pure Spice Powders',
     },
     {
@@ -41,7 +42,7 @@ export const CraftPage: React.FC<CraftPageProps> = ({ onGoToShop, onSelectCatego
       spice: 'Royal Kashmiri Mirch Powder',
       curcumin: 'Mild Heat & 100% Natural Ruby Color',
       desc: 'Pulverized stemless Kashmiri chillies slow-milled carefully. Imparts an iconic rich red curry hue without artificial coloring.',
-      image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80',
+      image: POUCH_IMAGES.chilli,
       category: 'Pure Spice Powders',
     },
     {
@@ -49,7 +50,7 @@ export const CraftPage: React.FC<CraftPageProps> = ({ onGoToShop, onSelectCatego
       spice: 'Imperial Shahi Garam Masala Powder',
       curcumin: '16 Aromatic Slow-Roasted Spices',
       desc: 'Hand-roasted green cardamom, mace, cinnamon, and cloves micro-milled in small batches for imperial royal aroma.',
-      image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80',
+      image: POUCH_IMAGES.garamMasala,
       category: 'Blended Masalas',
     },
   ];

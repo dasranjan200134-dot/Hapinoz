@@ -6,6 +6,8 @@ import chilliImg from '../assets/images/hapinoz_chilli_pouch_1789574122079.jpg';
 import jeeraImg from '../assets/images/hapinoz_jeera_pouch_1789574140713.jpg';
 import corianderImg from '../assets/images/hapinoz_coriander_pouch_1789574201983.jpg';
 import biryaniImg from '../assets/images/hapinoz_biryani_pouch_1789574217143.jpg';
+import choleMasalaImg from '../assets/images/hapinoz_chole_masala_pouch_1790401411038.jpg';
+import spiceMillingImg from '../assets/images/spice_milling_craft_1789702023820.jpg';
 
 export const POUCH_IMAGES = {
   heroBanner: heroBannerImg,
@@ -15,4 +17,6 @@ export const POUCH_IMAGES = {
   jeera: jeeraImg,
   coriander: corianderImg,
   biryani: biryaniImg,
+  choleMasala: choleMasalaImg,
+  spiceMilling: spiceMillingImg,
 };

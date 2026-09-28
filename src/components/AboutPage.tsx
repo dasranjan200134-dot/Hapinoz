@@ -10,6 +10,7 @@ import {
   Flame,
   CheckCircle2
 } from 'lucide-react';
+import { POUCH_IMAGES } from '../lib/productImages';
 
 interface AboutPageProps {
   onGoToShop: () => void;
@@ -69,10 +70,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onGoToShop }) => {
 
           <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 group">
             <img 
-              src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1000&q=80" 
+              src={POUCH_IMAGES.spiceMilling} 
               alt="Hapinoz Spice Crafting"
               className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
-              referrerPolicy="no-referrer"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-6">
               <div className="text-white space-y-1">

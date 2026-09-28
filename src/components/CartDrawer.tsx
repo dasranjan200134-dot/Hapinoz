@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useStore } from '../lib/store';
+import { getProductImage, DEFAULT_PRODUCT_IMAGE } from '../lib/imageHelper';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   if (!isOpen) return null;
 
   const totals = calculateTotals();
-  const freeShippingThreshold = 999;
+  const freeShippingThreshold = totals.selectedRule?.free_threshold || 499;
   const progressPercent = Math.min(100, Math.round((totals.subtotal / freeShippingThreshold) * 100));
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -133,9 +134,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div key={item.product.id} className="pt-4 first:pt-0 flex gap-3.5">
                   {/* Thumbnail */}
                   <img
-                    src={item.product.images[0]}
+                    src={getProductImage(item.product, 0)}
                     alt={item.product.title}
                     className="w-20 h-20 rounded-xl object-cover bg-slate-100 border border-slate-200 shrink-0"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                    }}
                   />
 
                   {/* Details */}

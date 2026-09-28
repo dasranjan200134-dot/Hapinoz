@@ -3,6 +3,7 @@ import { Star, ShoppingBag, Eye, AlertCircle, Plus, Minus, Sparkles } from 'luci
 import { Product } from '../types';
 import { useStore } from '../lib/store';
 import { IndianVegBadge } from './IndianFoodBadges';
+import { getProductImage, DEFAULT_PRODUCT_IMAGE } from '../lib/imageHelper';
 
 interface ProductCardProps {
   product: Product;
@@ -42,10 +43,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           onClick={() => handleSelect(product)}
         >
           <img
-            src={product.images[0]}
+            src={getProductImage(product, 0)}
             alt={product.title}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+            }}
           />
 
           {/* Badges Overlay */}

@@ -21,6 +21,7 @@ import { SAMPLE_REVIEWS } from '../lib/mockData';
 import { useStore } from '../lib/store';
 import { IndianVegBadge, FssaiBadge } from './IndianFoodBadges';
 import { lookupIndianPincode } from '../lib/indianLocations';
+import { getProductImage, DEFAULT_PRODUCT_IMAGE } from '../lib/imageHelper';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -131,9 +132,12 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             <div>
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-stone-200 mb-4 shadow-inner">
                 <img
-                  src={product.images[selectedImage] || product.images[0]}
+                  src={getProductImage(product, selectedImage)}
                   alt={product.title}
                   className="w-full h-full object-cover object-center"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                  }}
                 />
                 <div className="absolute top-3 left-3">
                   <span className="bg-white/95 px-2.5 py-1 rounded-full text-xs font-bold text-emerald-800 border border-emerald-200 shadow-2xs flex items-center gap-1.5">
@@ -149,7 +153,7 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               </div>
 
               {/* Thumbnails */}
-              {product.images.length > 1 && (
+              {Array.isArray(product.images) && product.images.length > 1 && (
                 <div className="flex gap-2.5 overflow-x-auto pb-2">
                   {product.images.map((img, idx) => (
                     <button
@@ -159,7 +163,14 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                         selectedImage === idx ? 'border-[#FF6A00] ring-2 ring-orange-500/20' : 'border-stone-200 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                      <img
+                        src={getProductImage(product, idx)}
+                        alt="Thumbnail"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                        }}
+                      />
                     </button>
                   ))}
                 </div>

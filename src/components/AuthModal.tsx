@@ -16,23 +16,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (tab === 'signin') {
-      login(email, password, email.includes('admin') ? 'admin' : 'customer');
-      onClose();
-    } else if (tab === 'signup') {
-      signup(fullName, email, phone, 'customer');
-      onClose();
-    } else {
-      setMessage(`Password reset email sent to ${email}. Check your inbox.`);
-      setTimeout(() => {
-        setMessage(null);
-        setTab('signin');
-      }, 3000);
+    setIsSubmitting(true);
+    try {
+      if (tab === 'signin') {
+        const role = email.toLowerCase().includes('admin') ? 'admin' : 'customer';
+        login(email, password, role);
+        onClose();
+      } else if (tab === 'signup') {
+        signup(fullName, email, phone, 'customer', password);
+        onClose();
+      } else {
+        setMessage(`Password reset email sent to ${email}. Check your inbox.`);
+        setTimeout(() => {
+          setMessage(null);
+          setTab('signin');
+        }, 3000);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -212,10 +219,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-green-600/20 transition-all cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full py-3 bg-[#22C55E] hover:bg-[#16A34A] disabled:bg-[#22C55E]/60 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-green-600/20 transition-all cursor-pointer"
           >
-            <span>{tab === 'signin' ? 'Sign In' : tab === 'signup' ? 'Create Account' : 'Send Reset Link'}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            {isSubmitting ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{tab === 'signin' ? 'Signing In...' : tab === 'signup' ? 'Creating Account & Syncing...' : 'Sending Link...'}</span>
+              </>
+            ) : (
+              <>
+                <span>{tab === 'signin' ? 'Sign In' : tab === 'signup' ? 'Create Account' : 'Send Reset Link'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
+            )}
           </button>
         </form>
       </div>
